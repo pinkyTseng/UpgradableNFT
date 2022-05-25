@@ -1,8 +1,10 @@
 require("@nomiclabs/hardhat-waffle");
 require('@openzeppelin/hardhat-upgrades');
 
-let pk = "";
-let INFURA_PROJECT_ID = ""
+require('dotenv').config();
+
+let pk = process.env.ganachePK;
+let INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

@@ -15,6 +15,42 @@ const provider = waffle.provider;
 
 // const expect = chai.expect;
 
+async function getBeforeMintData(proxyInstance, caller){
+  return new Promise(async function(resolve, reject){
+    try{
+      let dataObj = {};
+
+      let balanceInWei = await provider.getBalance(proxyInstance.address);
+      let callerOwnCount = await proxyInstance.balanceOf(caller.address);
+      let totalCount = await proxyInstance.totalSupply()
+      dataObj.balanceInWei = balanceInWei;
+      dataObj.callerOwnCount = callerOwnCount;
+      dataObj.totalCount = totalCount;
+      resolve(dataObj);
+    }catch(e){
+      reject(e);
+    }
+  });
+}
+
+//mintCount should be 0 when revert case
+async function checkAfterMintData(beforData, mintCount, proxyInstance, caller){
+  return new Promise(async function(resolve, reject){
+    try{
+      expect(beforData.callerOwnCount + mintCount).to.equal(await proxyInstance.balanceOf(caller.address));
+      expect(beforData.totalCount+ mintCount).to.equal(await proxyInstance.totalSupply());
+      
+      let balanceInWeiNew = await provider.getBalance(proxyInstance.address);
+      addedBalanceInWei = balanceInWeiNew.sub(beforData.balanceInWei);
+      let realAddedBalanceInWei = 0.01 * mintCount;
+      expect(addedBalanceInWei).to.equal(ethers.utils.parseEther(realAddedBalanceInWei.toString()));
+
+      resolve();
+    }catch(e){
+      reject(e);
+    }
+  });
+}
 
 
 // async function mintTask(mintCount, expectSuccess, proxyInstance, caller, userConnected){
@@ -150,17 +186,35 @@ describe("CharlieNft", function () {
 
     it("other mint 3 nft", async function () {         
         await charlieNft.openSell();
-        console.log("*****before mintTask");        
-        await mintTask(3, true, charlieNft, user1, true);
-        console.log("*****after mintTask"); 
+
+        let mintCount = 3;
+        let preMinedData = await getBeforeMintData(charlieNft, user1);
+        let val = 0.01 * mintCount;
+        let user1Connrct = await charlieNft.connect(user1);
+        await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});
+        await checkAfterMintData(preMinedData, mintCount, charlieNft, user1);
+
+        // console.log("*****before mintTask");        
+        // await mintTask(3, true, charlieNft, user1, true);
+        // console.log("*****after mintTask"); 
     });
 
     it("after upgrade other mint 3 nft", async function () {         
       await charlieNft.openSell(); 
       upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft2");
-      console.log("*****before mintTask");  
-      await mintTask(3, true, upgradedhCarlieNft, user1, true);
-      console.log("*****after mintTask");      
+
+
+      let mintCount = 3;
+      let preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
+      let val = 0.01 * mintCount;
+      let user1Connrct = await charlieNft.connect(user1);
+      await expect(user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )})).to.be.reverted;
+      await checkAfterMintData(preMinedData, 0, upgradedhCarlieNft, user1);
+      
+
+      // console.log("*****before mintTask");  
+      // await mintTask(3, true, upgradedhCarlieNft, user1, true);
+      // console.log("*****after mintTask");      
     });
 
 
