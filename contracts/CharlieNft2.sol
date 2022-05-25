@@ -5,11 +5,11 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract CharlieNft is  Initializable, ERC721EnumerableUpgradeable, OwnableUpgradeable {
+contract CharlieNft2 is  Initializable, ERC721EnumerableUpgradeable, OwnableUpgradeable {
     
     uint256 constant public totalCount = 10;
-    // uint256 constant public maxOwn = 5;
-    // uint256 constant public eachMintMaxCount = 2;
+    uint256 constant public maxOwn = 5;
+    uint256 constant public eachMintMaxCount = 2;
     string constant baseExtension = ".json";
 
     uint256 public sellPrice;
@@ -29,7 +29,7 @@ contract CharlieNft is  Initializable, ERC721EnumerableUpgradeable, OwnableUpgra
         unrevealedUrl = "";
         revealedUrl = "";
         // __{ContractName}_init();
-         __Ownable_init();
+        __Ownable_init();
          __ERC721_init(name_, symbol_);
     }
 
@@ -37,8 +37,12 @@ contract CharlieNft is  Initializable, ERC721EnumerableUpgradeable, OwnableUpgra
         require(isSellActive, "not in sell now");
         uint256 soldCount = totalSupply();        
         require(totalCount - soldCount >= count, "not so many nfts");
-        // require(count <= eachMintMaxCount, "over eachMintMaxCount");
-        // require(ownermap[msg.sender] + count <= maxOwn, "over individual maxOwn");
+        require(count <= eachMintMaxCount, "over eachMintMaxCount");
+        // if(!(count <= eachMintMaxCount)){
+        //     revert("over eachMintMaxCount");
+        // }
+        require(ownermap[msg.sender] + count <= maxOwn, "over individual maxOwn");
+        
         require(sellPrice * count == msg.value, "paid for price wrong");
         
         for (uint256 idx = 1; idx <=  count; idx++) {

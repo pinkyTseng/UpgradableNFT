@@ -1,6 +1,9 @@
 require("@nomiclabs/hardhat-waffle");
 require('@openzeppelin/hardhat-upgrades');
 
+let pk = "";
+let INFURA_PROJECT_ID = ""
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -19,4 +22,16 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  */
 module.exports = {
   solidity: "0.8.4",
+  networks: {
+    myGanache: {
+      url: "http://localhost:7545",
+      accounts: [pk],
+      // chainId: "*"
+    },
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`,
+      accounts: [pk],
+      chainId: 4
+    }
+  }
 };
