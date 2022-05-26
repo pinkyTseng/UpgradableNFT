@@ -1,4 +1,4 @@
-const { expect, assert, util } = require("chai");
+const { expect, util } = require("chai");
 const chai = require("chai");
 const { ethers, waffle, upgrades } = require("hardhat");
 require('dotenv').config();
@@ -62,7 +62,11 @@ async function upgrade(proxyAddress, upgradedContractName){
 describe("CharlieNft", function () {
   let charlieNft;
   let owner, user1, user2, users;
-  let upgradedhCarlieNft;  
+  let upgradedhCarlieNft;
+
+  // chai.use(solidity);
+
+  
 
   describe("happy path flow", async function () {
 
@@ -75,17 +79,9 @@ describe("CharlieNft", function () {
       charlieNft = await upgrades.deployProxy(CharlieNft, [nftName, nftSymbol]);
       await charlieNft.deployed();
       console.log("CharlieNft deployed to:", charlieNft.address);
-
-      // await charlieNft.setUnrevealedUrl(UnrevealedUrl);
-      // await charlieNft.setRevealedUrl(RevealedUrl);
-      // await charlieNft.openSell();
-
-      upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft3");
-      await upgradedhCarlieNft.upgradeSettings();
-      
-      await upgradedhCarlieNft.setUnrevealedUrl(UnrevealedUrl);
-      await upgradedhCarlieNft.setRevealedUrl(RevealedUrl);
-      await upgradedhCarlieNft.openSell();
+      await charlieNft.setUnrevealedUrl(UnrevealedUrl);
+      await charlieNft.setRevealedUrl(RevealedUrl);
+      console.log("!!!! after set Urls");      
     });
 
     // it("self mint 1 nft", async function () {      
@@ -121,76 +117,111 @@ describe("CharlieNft", function () {
     // });
 
     it("other mint 3 nft", async function () {         
-      // await charlieNft.openSell();
+        await charlieNft.openSell();
+
+        let mintCount = 3;
+        let preMinedData = await getBeforeMintData(charlieNft, user1);
+        let val = 0.01 * mintCount;
+        let user1Connrct = await charlieNft.connect(user1);
+        await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});
+        await checkAfterMintData(preMinedData, mintCount, charlieNft, user1);
+    });
+
+    it("after upgrade other mint 3 nft", async function () {         
+      await charlieNft.openSell();
+
+      // upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft3");
+      // await upgradedhCarlieNft.upgradeSettings();
+
+      // let mintCount = 3;
+      // let preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
+      // let val = 0.01 * mintCount;
+      // let user1Connrct = await upgradedhCarlieNft.connect(user1);
+      // await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});      
+      // await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);
+
+      upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft2");
       let mintCount = 3;
       let preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
       let val = 0.01 * mintCount;
       let user1Connrct = await upgradedhCarlieNft.connect(user1);
+      //!ps: to.be.reverted shoould execute here, execute at async promise will fail 
+      await expect(user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )})).to.be.reverted;
+      await checkAfterMintData(preMinedData, 0, upgradedhCarlieNft, user1);
+      
+      
+
+      upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft3");
+      await upgradedhCarlieNft.upgradeSettings();
+
+       mintCount = 3;
+       preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
+       val = 0.01 * mintCount;
+       user1Connrct = await upgradedhCarlieNft.connect(user1);
       await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});      
       await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);  
-
     });
 
-    // it("after upgrade other mint 3 nft", async function () {         
-    //   await charlieNft.openSell();     
 
-    //   upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft2");
-    //   let mintCount = 3;
-    //   let preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
-    //   let val = 0.01 * mintCount;
-    //   let user1Connrct = await upgradedhCarlieNft.connect(user1);
-    //   //!ps: to.be.reverted shoould execute here, execute at async promise will fail 
-    //   await expect(user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )})).to.be.reverted;
-    //   await checkAfterMintData(preMinedData, 0, upgradedhCarlieNft, user1);           
 
-    //   upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft3");
-    //   await upgradedhCarlieNft.upgradeSettings();
 
-    //    mintCount = 3;
-    //    preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
-    //    val = 0.01 * mintCount;
-    //    user1Connrct = await upgradedhCarlieNft.connect(user1);
-    //   await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});      
-    //   await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);  
+    // it("before & after upgrade mint 3 nft", async function () {
+    //     let balanceInWeiOld = await provider.getBalance(charlieNft.address);      
+    //     await charlieNft.openSell();
+        
+    //     let user1Connrct = await charlieNft.connect(user1);
+    //     await user1Connrct.mint(1, {value: ethers.utils.parseEther('0.01')} );
+  
+    //     let theTOkenOwner = await charlieNft.ownerOf(1);
+    //     expect(theTOkenOwner).to.be.equal(user1.address);
+  
+    //     expect(1).to.equal(await charlieNft.totalSupply());
+  
+    //     let balanceInWei = await provider.getBalance(charlieNft.address);
+    //     let result = balanceInWei.sub(balanceInWeiOld)
+    //     expect(result).to.equal(ethers.utils.parseEther('0.01'));
+
+
+
+        
+    //   });
+
+
+
+
+
+
+    // it("tokenURI test", async function () {      
+    //   await charlieNft.openSell();
+    //   await charlieNft.mint(1, {value: ethers.utils.parseEther('0.01')} );
+      
+    //   let url = await charlieNft.tokenURI(1);
+    //   let targetUrl = UnrevealedUrl
+    //   expect(url).to.equal(targetUrl);
+
+    //   await charlieNft.reveal();
+
+    //   url = await charlieNft.tokenURI(1);
+    //   targetUrl = RevealedUrl + 1 + ".json"
+    //   expect(url).to.equal(targetUrl);
     // });
 
+    // it("sumple isSellActive test", async function () {      
+    //   expect(await charlieNft.isSellActive()).to.equal(false);
+    //   await charlieNft.openSell();
+    //   expect(await charlieNft.isSellActive()).to.equal(true);
+    //   await charlieNft.pauseSell();
+    //   expect(await charlieNft.isSellActive()).to.equal(false);
+    // });
 
-    it("tokenURI test", async function () {      
-      // await upgradedhCarlieNft.openSell();
-      await upgradedhCarlieNft.mint(1, {value: ethers.utils.parseEther('0.01')} );
-      
-      let url = await upgradedhCarlieNft.tokenURI(1);
-      let targetUrl = UnrevealedUrl
-      expect(url).to.equal(targetUrl);
-
-      await upgradedhCarlieNft.reveal();
-
-      url = await upgradedhCarlieNft.tokenURI(1);
-      targetUrl = RevealedUrl + 1 + ".json"
-      expect(url).to.equal(targetUrl);
-    });
-
-    it("sumple isSellActive test", async function () {
-      expect(await upgradedhCarlieNft.isSellActive()).to.equal(true);
-      await upgradedhCarlieNft.pauseSell();
-      expect(await upgradedhCarlieNft.isSellActive()).to.equal(false);     
-      await upgradedhCarlieNft.openSell();
-      expect(await charlieNft.isSellActive()).to.equal(true);       
-      // expect(await charlieNft.isSellActive()).to.equal(false);
-      // await charlieNft.openSell();
-      // expect(await charlieNft.isSellActive()).to.equal(true);
-      // await charlieNft.pauseSell();
-      // expect(await charlieNft.isSellActive()).to.equal(false);
-    });
-
-    it("withdraw test", async function () {      
-      //await charlieNft.openSell();
-      let ownerBalanceOld = await owner.getBalance()
-      await upgradedhCarlieNft.connect(user1).mint(2, {value: ethers.utils.parseEther('0.02')} );
-      await upgradedhCarlieNft.withdraw();
-      let ownerBalance = await owner.getBalance()
-      assert(ownerBalance.gt(ownerBalanceOld), 'owner not get money from contract');
-    });
+    // it("withdraw test", async function () {      
+    //   await charlieNft.openSell();
+    //   let ownerBalanceOld = await owner.getBalance()
+    //   await charlieNft.connect(user1).mint(2, {value: ethers.utils.parseEther('0.02')} );
+    //   await charlieNft.withdraw();
+    //   let ownerBalance = await owner.getBalance()
+    //   assert(ownerBalance.gt(ownerBalanceOld), 'owner not get money from contract');
+    // });
 
 
   });
