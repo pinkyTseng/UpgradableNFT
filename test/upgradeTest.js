@@ -5,8 +5,10 @@ require('dotenv').config();
 
 const UnrevealedUrl = process.env.UnrevealedUrl
 const RevealedUrl = process.env.RevealedUrl
-const nftName = "charlie NFT"
-const nftSymbol = "CFT"
+// const nftName = "charlie NFT"
+// const nftSymbol = "CFT"
+const nftName = "Charlie Upgradable Nft"
+const nftSymbol = "CUFT"
 
 const provider = waffle.provider;
 
