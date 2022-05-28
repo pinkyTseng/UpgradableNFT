@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract CharlieNft3 is  Initializable, ERC721EnumerableUpgradeable, OwnableUpgradeable {
+contract CharlieNftU15 is  Initializable, ERC721EnumerableUpgradeable, OwnableUpgradeable {
     
     uint256 constant public totalCount = 10;
     // uint256 constant public maxOwn = 5;
@@ -20,11 +20,6 @@ contract CharlieNft3 is  Initializable, ERC721EnumerableUpgradeable, OwnableUpgr
 
     mapping(address => uint256) public ownermap;
 
-    uint256 public maxOwn;
-    uint256 public eachMintMaxCount;
-
-
-
     using StringsUpgradeable for uint256;   
 
     function initialize(string memory name_, string memory symbol_) public initializer {
@@ -33,27 +28,17 @@ contract CharlieNft3 is  Initializable, ERC721EnumerableUpgradeable, OwnableUpgr
         isReveal = false;
         unrevealedUrl = "";
         revealedUrl = "";
-
-        // maxOwn = 5;
-        // eachMintMaxCount = 3;
         // __{ContractName}_init();
-        __Ownable_init();
+         __Ownable_init();
          __ERC721_init(name_, symbol_);
-    }
-
-    //ps: if new variable exist in upgraded Contract, need call func to set it, not set in initialize
-    function upgradeSettings() public{
-        maxOwn = 5;
-        eachMintMaxCount = 3;
     }
 
     function mint(uint8 count) public payable{
         require(isSellActive, "not in sell now");
         uint256 soldCount = totalSupply();        
         require(totalCount - soldCount >= count, "not so many nfts");
-        require(count <= eachMintMaxCount, "over eachMintMaxCount");
-        require(ownermap[msg.sender] + count <= maxOwn, "over individual maxOwn");
-        
+        // require(count <= eachMintMaxCount, "over eachMintMaxCount");
+        // require(ownermap[msg.sender] + count <= maxOwn, "over individual maxOwn");
         require(sellPrice * count == msg.value, "paid for price wrong");
         
         for (uint256 idx = 1; idx <=  count; idx++) {

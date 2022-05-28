@@ -73,7 +73,7 @@ describe("CharlieNft", function () {
       console.log("beforeEach run");
       [owner, user1, user2, ...users] = await ethers.getSigners();
 
-      const CharlieNft = await ethers.getContractFactory("CharlieNft");
+      const CharlieNft = await ethers.getContractFactory("CharlieNftU15");
       charlieNft = await upgrades.deployProxy(CharlieNft, [nftName, nftSymbol]);
       await charlieNft.deployed();
       console.log("CharlieNft deployed to:", charlieNft.address);
@@ -82,7 +82,7 @@ describe("CharlieNft", function () {
       // await charlieNft.setRevealedUrl(RevealedUrl);
       // await charlieNft.openSell();
 
-      upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft3");
+      upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNftU16");
       await upgradedhCarlieNft.upgradeSettings();
       
       await upgradedhCarlieNft.setUnrevealedUrl(UnrevealedUrl);
@@ -145,7 +145,7 @@ describe("CharlieNft", function () {
     //   await expect(user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )})).to.be.reverted;
     //   await checkAfterMintData(preMinedData, 0, upgradedhCarlieNft, user1);           
 
-    //   upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft3");
+    //   upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNftU8");
     //   await upgradedhCarlieNft.upgradeSettings();
 
     //    mintCount = 3;
@@ -192,6 +192,27 @@ describe("CharlieNft", function () {
       await upgradedhCarlieNft.withdraw();
       let ownerBalance = await owner.getBalance()
       assert(ownerBalance.gt(ownerBalanceOld), 'owner not get money from contract');
+    });
+
+    it("other mint nft and transfer", async function () {         
+      // await charlieNft.openSell();
+      let mintCount = 1;
+      let preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
+      let val = 0.01 * mintCount;
+      let user1Connrct = await upgradedhCarlieNft.connect(user1);
+      await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});      
+      await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);
+      
+      console.log("user1 addr: "+user1.address);
+      let nowOwnerAddr = await upgradedhCarlieNft.ownerOf(1);
+      console.log("token1 now owner addr: "+nowOwnerAddr);
+
+      await upgradedhCarlieNft.connect(user1).safeTransferFrom(user1.address, user2.address, 1);
+
+      console.log("user2 addr: "+user2.address);
+      nowOwnerAddr = await upgradedhCarlieNft.ownerOf(1);
+      console.log("token1 now owner addr: "+nowOwnerAddr);
+
     });
 
 
