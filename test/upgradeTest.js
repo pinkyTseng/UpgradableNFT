@@ -113,12 +113,12 @@ describe("CharlieNft", function () {
       expect(url).to.equal(targetUrl);
     });
 
-    it("sumple isSellActive test", async function () {
+    it("simple isSellActive test", async function () {
       expect(await upgradedhCarlieNft.isSellActive()).to.equal(true);
       await upgradedhCarlieNft.pauseSell();
       expect(await upgradedhCarlieNft.isSellActive()).to.equal(false);     
       await upgradedhCarlieNft.openSell();
-      expect(await charlieNft.isSellActive()).to.equal(true);
+      expect(await upgradedhCarlieNft.isSellActive()).to.equal(true);
     });
 
     it("withdraw test", async function () {      
