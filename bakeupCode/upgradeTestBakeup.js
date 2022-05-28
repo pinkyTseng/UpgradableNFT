@@ -224,6 +224,30 @@ describe("CharlieNft", function () {
     // });
 
 
+
+
+    // it("other mint nft and transfer", async function () {         
+    //   // await charlieNft.openSell();
+    //   let mintCount = 1;
+    //   let preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
+    //   let val = 0.01 * mintCount;
+    //   let user1Connrct = await upgradedhCarlieNft.connect(user1);
+    //   await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});      
+    //   await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);
+      
+    //   console.log("user1 addr: "+user1.address);
+    //   let nowOwnerAddr = await upgradedhCarlieNft.ownerOf(1);
+    //   console.log("token1 now owner addr: "+nowOwnerAddr);
+
+    //   await upgradedhCarlieNft.connect(user1).safeTransferFrom(user1.address, user2.address, 1);
+
+    //   console.log("user2 addr: "+user2.address);
+    //   nowOwnerAddr = await upgradedhCarlieNft.ownerOf(1);
+    //   console.log("token1 now owner addr: "+nowOwnerAddr);
+
+    // });
+
+
   });
 });
 

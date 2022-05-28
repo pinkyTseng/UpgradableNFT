@@ -5,8 +5,6 @@ require('dotenv').config();
 
 const UnrevealedUrl = process.env.UnrevealedUrl
 const RevealedUrl = process.env.RevealedUrl
-// const nftName = "charlie NFT"
-// const nftSymbol = "CFT"
 const nftName = "Charlie Upgradable Nft"
 const nftSymbol = "CUFT"
 
@@ -77,7 +75,6 @@ describe("CharlieNft", function () {
       charlieNft = await upgrades.deployProxy(CharlieNft, [nftName, nftSymbol]);
       await charlieNft.deployed();
       console.log("CharlieNft deployed to:", charlieNft.address);
-
       // await charlieNft.setUnrevealedUrl(UnrevealedUrl);
       // await charlieNft.setRevealedUrl(RevealedUrl);
       // await charlieNft.openSell();
@@ -88,39 +85,7 @@ describe("CharlieNft", function () {
       await upgradedhCarlieNft.setUnrevealedUrl(UnrevealedUrl);
       await upgradedhCarlieNft.setRevealedUrl(RevealedUrl);
       await upgradedhCarlieNft.openSell();
-    });
-
-    // it("self mint 1 nft", async function () {      
-    //   let balanceInWeiOld = await provider.getBalance(charlieNft.address);
-      
-    //   await charlieNft.openSell();      
-    //   await charlieNft.mint(1, {value: ethers.utils.parseEther('0.01')} );
-    //   let theTOkenOwner = await charlieNft.ownerOf(1);
-    //   expect(theTOkenOwner).to.be.equal(owner.address);
-    //   expect(1).to.equal(await charlieNft.totalSupply());
-
-    //   let balanceInWei = await provider.getBalance(charlieNft.address);
-    //   let result = balanceInWei.sub(balanceInWeiOld)
-    //   expect(result).to.equal(ethers.utils.parseEther('0.01'));
-    //   // result.should.be.bignumber.equal(ethers.utils.parseEther('0.01'));
-    // });
-
-    // it("other mint 1 nft", async function () {
-    //   let balanceInWeiOld = await provider.getBalance(charlieNft.address);      
-    //   await charlieNft.openSell();
-      
-    //   let user1Connrct = await charlieNft.connect(user1);
-    //   await user1Connrct.mint(1, {value: ethers.utils.parseEther('0.01')} );
-
-    //   let theTOkenOwner = await charlieNft.ownerOf(1);
-    //   expect(theTOkenOwner).to.be.equal(user1.address);
-
-    //   expect(1).to.equal(await charlieNft.totalSupply());
-
-    //   let balanceInWei = await provider.getBalance(charlieNft.address);
-    //   let result = balanceInWei.sub(balanceInWeiOld)
-    //   expect(result).to.equal(ethers.utils.parseEther('0.01'));
-    // });
+    });    
 
     it("other mint 3 nft", async function () {         
       // await charlieNft.openSell();
@@ -129,32 +94,8 @@ describe("CharlieNft", function () {
       let val = 0.01 * mintCount;
       let user1Connrct = await upgradedhCarlieNft.connect(user1);
       await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});      
-      await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);  
-
-    });
-
-    // it("after upgrade other mint 3 nft", async function () {         
-    //   await charlieNft.openSell();     
-
-    //   upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNft2");
-    //   let mintCount = 3;
-    //   let preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
-    //   let val = 0.01 * mintCount;
-    //   let user1Connrct = await upgradedhCarlieNft.connect(user1);
-    //   //!ps: to.be.reverted shoould execute here, execute at async promise will fail 
-    //   await expect(user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )})).to.be.reverted;
-    //   await checkAfterMintData(preMinedData, 0, upgradedhCarlieNft, user1);           
-
-    //   upgradedhCarlieNft = await upgrade(charlieNft.address, "CharlieNftU8");
-    //   await upgradedhCarlieNft.upgradeSettings();
-
-    //    mintCount = 3;
-    //    preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
-    //    val = 0.01 * mintCount;
-    //    user1Connrct = await upgradedhCarlieNft.connect(user1);
-    //   await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});      
-    //   await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);  
-    // });
+      await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);
+    });   
 
 
     it("tokenURI test", async function () {      
@@ -177,12 +118,7 @@ describe("CharlieNft", function () {
       await upgradedhCarlieNft.pauseSell();
       expect(await upgradedhCarlieNft.isSellActive()).to.equal(false);     
       await upgradedhCarlieNft.openSell();
-      expect(await charlieNft.isSellActive()).to.equal(true);       
-      // expect(await charlieNft.isSellActive()).to.equal(false);
-      // await charlieNft.openSell();
-      // expect(await charlieNft.isSellActive()).to.equal(true);
-      // await charlieNft.pauseSell();
-      // expect(await charlieNft.isSellActive()).to.equal(false);
+      expect(await charlieNft.isSellActive()).to.equal(true);
     });
 
     it("withdraw test", async function () {      
@@ -193,29 +129,6 @@ describe("CharlieNft", function () {
       let ownerBalance = await owner.getBalance()
       assert(ownerBalance.gt(ownerBalanceOld), 'owner not get money from contract');
     });
-
-    it("other mint nft and transfer", async function () {         
-      // await charlieNft.openSell();
-      let mintCount = 1;
-      let preMinedData = await getBeforeMintData(upgradedhCarlieNft, user1);
-      let val = 0.01 * mintCount;
-      let user1Connrct = await upgradedhCarlieNft.connect(user1);
-      await user1Connrct.mint(mintCount, {value: ethers.utils.parseEther( val.toString() )});      
-      await checkAfterMintData(preMinedData, mintCount, upgradedhCarlieNft, user1);
-      
-      console.log("user1 addr: "+user1.address);
-      let nowOwnerAddr = await upgradedhCarlieNft.ownerOf(1);
-      console.log("token1 now owner addr: "+nowOwnerAddr);
-
-      await upgradedhCarlieNft.connect(user1).safeTransferFrom(user1.address, user2.address, 1);
-
-      console.log("user2 addr: "+user2.address);
-      nowOwnerAddr = await upgradedhCarlieNft.ownerOf(1);
-      console.log("token1 now owner addr: "+nowOwnerAddr);
-
-    });
-
-
   });
 });
 
